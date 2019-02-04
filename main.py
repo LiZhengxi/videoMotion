@@ -31,7 +31,7 @@ class train_image :
     def __init__(self,videoTime):
         self.videoTime = videoTime
         self.pre_frame = None  # 总是取前一帧做为背景（不用考虑环境影响）
-        self.fourcc = cv2.cv.CV_FOURCC(*'XVID')
+        self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.size = (0,0)
         self.frame_list = []
         self.lastTime = time.time()
@@ -50,20 +50,20 @@ class train_image :
            for i in range (len(imgList)) :
                video.write (imgList[i])
            cv2.imwrite(filepath+filename+fileadresse, img)
-
+    '''
     def initialization (self):
              # 1. Take the defaut video device as the source
             camera = cv2.VideoCapture(0)
             #camera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,480)
             #camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,320)
-            self.size = (int(camera.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)),int(camera.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)))
+            self.size = (int(camera.get(cv2.CAP_PROP_FRAME_WIDTH)),int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
             print (self.size)
             # if the device can't be open, noticy the client
             if camera is None:
                 print('check the connection to the camera')
                 exit()
             return camera
-    '''
+
     def analyFrame (self, camera):
 
             res, cur_frame = camera.read()
@@ -91,7 +91,7 @@ class train_image :
                 contourMax = 0
                 for i in range(len(contours)):
                     if cv2.contourArea(contours[i]) > 500 and cv2.contourArea(contours[i])>=contourMax: # 设置敏感度
-                        contourMax = contourArea(contours[i])
+                        contourMax = cv2.contourArea(contours[i])
                         # cv2.drawContours(cur_frame,contours[i],-1,(0,255,0),2)
                         print("somethings moving here!!")
                         self.dectTime = time.time()
@@ -106,7 +106,7 @@ class train_image :
                     self.makeVideo(self.frame_list)
                     self.frame_list = []
             self.pre_frame = gray_img
-            return rotated
+            return cur_frame
 
     # 把图片向左转90度，室外摄像机角度不为正才做此操作
     def rotImg(self,cur_frame):
@@ -136,7 +136,10 @@ class train_image :
         camera = self.initialization()
         while 1 :
             img = self.analyFrame(camera)
-            if self.showImg()==0 :
+            if self.showImg(img)==0 :
                 break
         camera.release()
         cv2.destroyAllWindows()
+if __name__ == '__main__':
+    program =  train_image(5)
+    program.run()

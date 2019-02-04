@@ -101,7 +101,7 @@ class train_image :
                     if cv2.contourArea(contours[i]) > 500 and cv2.contourArea(contours[i])>=contourMax: # 设置敏感度
                         contourMax = cv2.contourArea(contours[i])
                         # cv2.drawContours(cur_frame,contours[i],-1,(0,255,0),2)
-                        print("somethings moving here!!")
+                        print("somethings moving here!")
                         self.dectTime = time.time()
                         if (self.dectTime - self.lastTime)>1:
                             self.firstTime = self.dectTime
@@ -109,7 +109,10 @@ class train_image :
                     else:
                         continue
                 if time.time()-self.firstTime < self.videoTime :
-                    self.frame_list.append (rotated)
+                    if self.version =='PC' :
+                        self.frame_list.append (cur_frame)
+                    else:
+                        self.frame_list.append(rotated)
                 else :
                     self.makeVideo(self.frame_list)
                     self.frame_list = []

@@ -28,10 +28,14 @@ class radom_str:
         return random_str
 
 class train_image :
-    def __init__(self,videoTime):
+    def __init__(self,videoTime,version = 'PC'):
+        self.version = version
         self.videoTime = videoTime
         self.pre_frame = None  # 总是取前一帧做为背景（不用考虑环境影响）
-        self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        if version =='PC' :
+            self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        else :
+            self.fourcc = cv2.cv.CV_FOURCC(*'XVID')
         self.size = (0,0)
         self.frame_list = []
         self.lastTime = time.time()
@@ -56,7 +60,11 @@ class train_image :
             camera = cv2.VideoCapture(0)
             #camera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,480)
             #camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,320)
-            self.size = (int(camera.get(cv2.CAP_PROP_FRAME_WIDTH)),int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+            if self.version == 'PC':
+                self.size = (int(camera.get(cv2.CAP_PROP_FRAME_WIDTH)), int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+
+            else :
+                self.size = (int(camera.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)), int(camera.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)))
             print (self.size)
             # if the device can't be open, noticy the client
             if camera is None:
@@ -117,10 +125,12 @@ class train_image :
         return rotated
     # Make the video by the n second frame_list
     def makeVideo(self, frame_list):
-        print(len(frame_list))
+
         if (len(frame_list) > 0):
-            filename = time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time()))
-            out = cv2.VideoWriter(filename + '.avi', self.fourcc, 10.0, self.size)
+            print(len(frame_list))
+            filename = time.strftime('%Y-%m-%d_%H_%M_%S', time.localtime())
+            print(filename)
+            out = cv2.VideoWriter(filename+'.avi' , self.fourcc, 20.0, self.size)
             for frame in frame_list:
                 out.write(frame)
 
